@@ -47,9 +47,12 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'djoser',
     'api',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -59,6 +62,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
@@ -144,4 +148,6 @@ SIMPLE_JWT = {
 DJOSER = {
     'USER_ID_FIELD': 'username',
     'LOGIN_FIELD': 'email',
+    'SEND_ACTIVATION_EMAIL': False,
+    'SEND_CONFIRMATION_EMAIL': False,
 }

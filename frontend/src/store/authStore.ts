@@ -18,13 +18,15 @@ export const useAuthStore = create<AuthState>()(
       refresh: null,
       isAuthenticated: false,
 
-      login: async (email, password) => {
-        const response = await authClient.post('jwt/create/', { email, password });
-        const { access, refresh } = response.data;
-        set({ access, refresh, isAuthenticated: true });
-        localStorage.setItem('access_token', access);
-        localStorage.setItem('refresh_token', refresh);
-      },
+  login: async (username, password) => {
+    console.log('Отправляю в бэкенд:', { username, password });
+    const response = await authClient.post('jwt/create/', { username, password });
+    const { access, refresh } = response.data;
+    set({ access, refresh, isAuthenticated: true });
+    
+    localStorage.setItem('access_token', access);
+    localStorage.setItem('refresh_token', refresh);
+  },
 
       register: async (username, email, password) => {
         await authClient.post('users/', { username, email, password });
