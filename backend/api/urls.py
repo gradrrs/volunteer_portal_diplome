@@ -4,7 +4,9 @@ from .views import (
     ApplicationListCreateView, ApplicationDetailView,
     PostListCreateView, PostDetailView,
     CommentListCreateView, LikeCreateView,
-    NotificationListView
+    NotificationListView,
+    UserRatingView,
+    CurrentUserView
 )
 
 urlpatterns = [
@@ -17,4 +19,6 @@ urlpatterns = [
     path('posts/<int:post_pk>/comments/', CommentListCreateView.as_view(), name='comment-list'),
     path('likes/', LikeCreateView.as_view(), name='like-create'),
     path('notifications/', NotificationListView.as_view(), name='notification-list'),
+    path('ratings/me/', UserRatingView.as_view(), name='user-rating'),
+    path('users/me/', CurrentUserView.as_view(), name='current-user'),
 ]

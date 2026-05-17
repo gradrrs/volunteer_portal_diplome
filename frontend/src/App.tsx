@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import MainPage from './pages/MainPage.tsx';
 import EventsPage from './pages/EventsPage';
+import ProfilePage from './pages/ProfilePage';
 
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -18,7 +19,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/" element={<PrivateRoute><MainPage /></PrivateRoute>} />
-        <Route path="/events" element={<PrivateRoute><EventsPage /></PrivateRoute>} />
+        <Route path="/events" element={<PrivateRoute><EventsPage /></PrivateRoute>}/>
+        <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,6 +1,9 @@
 from rest_framework import generics, permissions
-from .models import Event, Application, Post, Comment, Like, Notification
-from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, CommentSerializer, LikeSerializer, NotificationSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import UserSerializer
+from .models import Event, Application, Post, Comment, Like, Notification,Rating
+from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, CommentSerializer, LikeSerializer, NotificationSerializer, RatingSerializer
 
 class EventListCreateView(generics.ListCreateAPIView):
     queryset = Event.objects.all()
@@ -65,3 +68,18 @@ class NotificationListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user).order_by('-created_at')
+    
+class UserRatingView(generics.RetrieveAPIView):
+    serializer_class = RatingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        rating, created = Rating.objects.get_or_create(user=self.request.user)
+        return rating
+    
+class CurrentUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
