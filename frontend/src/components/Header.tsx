@@ -1,10 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Calendar, User, Bell, LogOut } from 'lucide-react';
+import { Home, Calendar, User, Bell, LogOut, Shield } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Header() {
+  
   const location = useLocation();
   const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
+  console.log('User from store:', user);
 
   const navItems = [
     { path: '/', label: 'Лента', icon: Home },
@@ -35,6 +38,19 @@ export default function Header() {
               </Link>
             );
           })}
+          {user?.is_staff && (
+            <Link
+              to="/admin"
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
+                location.pathname === '/admin'
+                  ? 'bg-blue-50 text-blue-600 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">Админ</span>
+            </Link>
+          )}
         </div>
 
         <button

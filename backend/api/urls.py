@@ -8,7 +8,8 @@ from .views import (
     UserRatingView,
     CurrentUserView,
     NotificationDetailView,
-    MarkAllNotificationsReadView
+    MarkAllNotificationsReadView,
+    AdminUsersView
 )
 
 urlpatterns = [
@@ -26,4 +27,5 @@ urlpatterns = [
     path('notifications/', NotificationListView.as_view(), name='notification-list'),
     path('notifications/<int:pk>/', NotificationDetailView.as_view(), name='notification-detail'),
     path('notifications/mark-all-read/', MarkAllNotificationsReadView.as_view(), name='notifications-mark-all-read'),
+    path('admin/users/', AdminUsersView.as_view(), name='admin-users'),
 ]

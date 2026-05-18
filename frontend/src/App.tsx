@@ -6,6 +6,7 @@ import MainPage from './pages/MainPage.tsx';
 import EventsPage from './pages/EventsPage';
 import ProfilePage from './pages/ProfilePage';
 import NotificationsPage from './pages/NotificationsPage';
+import AdminDashboard from './pages/AdminDashboard';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -22,6 +23,7 @@ function App() {
         <Route path="/events" element={<PrivateRoute><EventsPage /></PrivateRoute>}/>
         <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
         <Route path="/notifications" element={<PrivateRoute><NotificationsPage /></PrivateRoute>} />
+        <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -2,7 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer
-from .models import Event, Application, Post, Comment, Like, Notification,Rating
+from .models import Event, Application, Post, Comment, Like, Notification,Rating, User
 from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, CommentSerializer, LikeSerializer, NotificationSerializer, RatingSerializer
 
 class EventListCreateView(generics.ListCreateAPIView):
@@ -98,3 +98,20 @@ class MarkAllNotificationsReadView(APIView):
     def post(self, request):
         Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
         return Response({'status': 'ok'})
+    
+class AdminUsersView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        from .models import Rating
+        users = User.objects.all()
+        data = []
+        for user in users:
+            rating, _ = Rating.objects.get_or_create(user=user)
+            data.append({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'rating_score': rating.score
+            })
+        return Response(data)
