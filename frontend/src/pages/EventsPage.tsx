@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/axiosInstance';
 import { useAuthStore } from '../store/authStore';
+import Header from '../components/Header';
 
 interface Event {
   id: number;
@@ -81,6 +82,8 @@ export default function EventsPage() {
   }
 
   return (
+  <div>
+    <Header />
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Мероприятия</h1>
       
@@ -147,5 +150,7 @@ export default function EventsPage() {
         })}
       </div>
     </div>
+  </div>
+
   );
 }
