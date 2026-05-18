@@ -12,11 +12,13 @@ class EventSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ApplicationSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
-    event = serializers.StringRelatedField()
+    user = serializers.StringRelatedField(read_only=True)
+    event_title = serializers.ReadOnlyField(source='event.title')
+    
     class Meta:
         model = Application
-        fields = '__all__'
+        fields = ['id', 'user', 'event', 'event_title', 'status', 'created_at', 'updated_at']
+        read_only_fields = ['user', 'status', 'created_at', 'updated_at']
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()
