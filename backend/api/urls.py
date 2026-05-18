@@ -6,7 +6,9 @@ from .views import (
     CommentListCreateView, LikeCreateView,
     NotificationListView,
     UserRatingView,
-    CurrentUserView
+    CurrentUserView,
+    NotificationDetailView,
+    MarkAllNotificationsReadView
 )
 
 urlpatterns = [
@@ -21,4 +23,7 @@ urlpatterns = [
     path('notifications/', NotificationListView.as_view(), name='notification-list'),
     path('ratings/me/', UserRatingView.as_view(), name='user-rating'),
     path('users/me/', CurrentUserView.as_view(), name='current-user'),
+    path('notifications/', NotificationListView.as_view(), name='notification-list'),
+    path('notifications/<int:pk>/', NotificationDetailView.as_view(), name='notification-detail'),
+    path('notifications/mark-all-read/', MarkAllNotificationsReadView.as_view(), name='notifications-mark-all-read'),
 ]

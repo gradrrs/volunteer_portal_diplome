@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/axiosInstance';
 import { Link } from 'react-router-dom';
+import { Bell } from 'lucide-react';
 
 interface Post {
   id: number;
@@ -25,6 +26,10 @@ export default function MainPage() {
         <Link to="/" className="text-blue-600">Лента</Link>
         <Link to="/events" className="text-blue-600">Мероприятия</Link>
         <Link to="/profile" className="text-blue-600">Профиль</Link>
+        <Link to="/notifications" className="text-gray-600 hover:text-blue-600 flex items-center gap-1">
+          <Bell className="w-4 h-4" />
+          Уведомления
+        </Link>
       </nav>
       <h1 className="text-2xl font-bold mb-4">Лента постов</h1>
       {posts.map((post) => (
