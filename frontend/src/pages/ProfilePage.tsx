@@ -14,8 +14,13 @@ interface UserProfile {
 
 interface Application {
   id: number;
-  event: { id: number; title: string; date: string };
+  event: {
+    id: number;
+    title: string;
+    date: string;
+  };
   status: string;
+  created_at: string;
 }
 
 interface Rating {
@@ -91,8 +96,7 @@ export default function ProfilePage() {
                 <div key={app.id} className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">{app.event.title}</div>
-                    <div className="text-sm text-gray-500">{new Date(app.event.date).toLocaleDateString('ru-RU')}</div>
-                  </div>
+                    {app.created_at ? new Date(app.created_at).toLocaleDateString('ru-RU') : 'Дата не указана'}                  </div>
                   <div className="text-sm px-3 py-1 rounded-full bg-gray-100">{getStatusText(app.status)}</div>
                 </div>
               ))}
