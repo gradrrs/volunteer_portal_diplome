@@ -6,10 +6,25 @@ from .models import Event, Application, Post, Comment, Like, Notification,Rating
 from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, CommentSerializer, LikeSerializer, NotificationSerializer, RatingSerializer
 from rest_framework.pagination import PageNumberPagination
 
+class EventPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 20
+
 class EventListCreateView(generics.ListCreateAPIView):
-    queryset = Event.objects.all()
     serializer_class = EventSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = EventPagination
+
+    def get_queryset(self):
+        queryset = Event.objects.all()
+        search = self.request.query_params.get('search', None)
+        date = self.request.query_params.get('date', None)
+        if search:
+            queryset = queryset.filter(title__icontains=search)
+        if date:
+            queryset = queryset.filter(date__date=date)
+        return queryset
 
 class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
