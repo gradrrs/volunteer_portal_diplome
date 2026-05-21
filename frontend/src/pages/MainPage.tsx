@@ -14,10 +14,54 @@ interface Post {
 
 export default function MainPage() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  const loadPosts = async (url: string) => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get(url);
+      const newPosts = response.data.results;
+      setPosts(prev => [...prev, ...newPosts]);
+      setNextPageUrl(response.data.next);
+    } catch (error) {
+      console.error('Ошибка загрузки постов:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMore = () => {
+    if (nextPageUrl && !loading) {
+      loadPosts(nextPageUrl);
+    }
+  };
 
   useEffect(() => {
-    apiClient.get('/posts/').then((response) => setPosts(response.data));
+    const fetchFirstPage = async () => {
+      setInitialLoading(true);
+      try {
+        const response = await apiClient.get('/posts/');
+        setPosts(response.data.results);
+        setNextPageUrl(response.data.next);
+      } catch (error) {
+        console.error('Ошибка первой загрузки:', error);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    fetchFirstPage();
   }, []);
+
+  if (initialLoading) {
+    return (
+      <div>
+        <Header />
+        <div className="flex justify-center py-20">Загрузка постов...</div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -32,6 +76,20 @@ export default function MainPage() {
             <p className="mt-2 text-sm text-gray-500">❤️ {post.likes_count} 💬 {post.comments_count}</p>
           </div>
         ))}
+        {loading && <p className="text-center text-gray-500">Загрузка...</p>}
+        {nextPageUrl && !loading && (
+          <div className="text-center mt-4">
+            <button
+              onClick={loadMore}
+              className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition"
+            >
+              Загрузить ещё
+            </button>
+          </div>
+        )}
+        {!nextPageUrl && posts.length > 0 && (
+          <p className="text-center text-gray-400 mt-6">Все посты загружены</p>
+        )}
       </div>
     </div>
   );

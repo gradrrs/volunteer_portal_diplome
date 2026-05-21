@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .serializers import UserSerializer
 from .models import Event, Application, Post, Comment, Like, Notification,Rating, User
 from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, CommentSerializer, LikeSerializer, NotificationSerializer, RatingSerializer
+from rest_framework.pagination import PageNumberPagination
 
 class EventListCreateView(generics.ListCreateAPIView):
     queryset = Event.objects.all()
@@ -115,3 +116,14 @@ class AdminUsersView(APIView):
                 'rating_score': rating.score
             })
         return Response(data)
+    
+class PostPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 20
+
+class PostListCreateView(generics.ListCreateAPIView):
+    queryset = Post.objects.all().order_by('-created_at')
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = PostPagination

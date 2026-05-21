@@ -69,9 +69,9 @@ export default function AdminDashboard() {
           apiClient.get('/admin/users/'),
         ]);
 
-        setEvents(eventsRes.data);
-        setApplications(appsRes.data);
-        setPosts(postsRes.data);
+        setEvents(eventsRes.data.results || eventsRes.data);
+        setApplications(appsRes.data.results || appsRes.data);
+        setPosts(postsRes.data.results || postsRes.data);
         setUsers(usersRes.data);
       } catch (error) {
         console.error('Ошибка загрузки:', error);
