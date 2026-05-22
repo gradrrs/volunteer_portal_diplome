@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { authClient } from '../api/axiosInstance';
+import { authClient, apiClient } from '../api/axiosInstance';
 
 interface User {
   id: number;
   username: string;
   email: string;
+  phone?: string;
   is_staff: boolean;
+  date_joined?: string;
 }
 
 interface AuthState {
@@ -17,11 +19,12 @@ interface AuthState {
   login: (username: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  fetchUser: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       access: null,
       refresh: null,
       user: null,
@@ -54,6 +57,18 @@ export const useAuthStore = create<AuthState>()(
         set({ access: null, refresh: null, user: null, isAuthenticated: false });
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+      },
+
+      fetchUser: async () => {
+        const { access } = get();
+        if (!access) return;
+        try {
+          const response = await apiClient.get('/users/me/');
+          set({ user: response.data });
+        } catch (error) {
+          console.error('Ошибка загрузки пользователя:', error);
+          get().logout();
+        }
       },
     }),
     { name: 'auth-storage' }

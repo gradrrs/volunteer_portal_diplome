@@ -9,7 +9,8 @@ from .views import (
     CurrentUserView,
     NotificationDetailView,
     MarkAllNotificationsReadView,
-    AdminUsersView
+    AdminUsersView,
+    UpdateUserView
 )
 
 urlpatterns = [
@@ -28,4 +29,6 @@ urlpatterns = [
     path('notifications/<int:pk>/', NotificationDetailView.as_view(), name='notification-detail'),
     path('notifications/mark-all-read/', MarkAllNotificationsReadView.as_view(), name='notifications-mark-all-read'),
     path('admin/users/', AdminUsersView.as_view(), name='admin-users'),
+    path('users/me/', CurrentUserView.as_view(), name='current-user'),
+    path('users/me/update/', UpdateUserView.as_view(), name='update-user'),
 ]
