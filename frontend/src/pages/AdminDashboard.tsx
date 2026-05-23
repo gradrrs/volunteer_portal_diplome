@@ -3,7 +3,7 @@ import { apiClient } from '../api/axiosInstance';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { Plus, Trash2, Calendar, Users, FileText, UserCheck } from 'lucide-react';
+import { Plus, Trash2, Calendar, Users, FileText, UserCheck, Pencil } from 'lucide-react';
 
 interface Event {
   id: number;
@@ -56,25 +56,34 @@ export default function AdminDashboard() {
 
   const [newPost, setNewPost] = useState({ title: '', content: '' });
 
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [eventsRes, appsRes, postsRes, usersRes] = await Promise.all([
+        const [eventsRes, appsRes, postsRes] = await Promise.all([
           apiClient.get('/events/'),
           apiClient.get('/applications/'),
           apiClient.get('/posts/'),
-          apiClient.get('/admin/users/'),
         ]);
 
         setEvents(eventsRes.data.results || eventsRes.data);
         setApplications(appsRes.data.results || appsRes.data);
         setPosts(postsRes.data.results || postsRes.data);
-        setUsers(usersRes.data);
+
+        try {
+          const usersRes = await apiClient.get('/admin/users/');
+          setUsers(usersRes.data);
+        } catch (userError) {
+          console.warn('Не удалось загрузить список пользователей (недостаточно прав)');
+          setUsers([]);
+        }
       } catch (error) {
-        console.error('Ошибка загрузки:', error);
+        console.error('Ошибка загрузки основных данных:', error);
       } finally {
         setLoading(false);
       }
@@ -121,6 +130,26 @@ export default function AdminDashboard() {
     }
   };
 
+  const openEditModal = (event: Event) => {
+    setEditingEvent(event);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateEvent = async (updatedData: Partial<Event>) => {
+    if (!editingEvent) return;
+    try {
+      await apiClient.patch(`/events/${editingEvent.id}/`, updatedData);
+      const eventsRes = await apiClient.get('/events/');
+      setEvents(eventsRes.data.results || eventsRes.data);
+      setIsEditModalOpen(false);
+      setEditingEvent(null);
+      alert('Мероприятие обновлено');
+    } catch (error) {
+      console.error('Ошибка обновления:', error);
+      alert('Не удалось обновить мероприятие');
+    }
+  };
+
   const handleDeletePost = async (id: number) => {
     if (!confirm('Удалить пост?')) return;
     try {
@@ -142,9 +171,9 @@ export default function AdminDashboard() {
     }
   };
 
-  // if (!user?.is_staff) {
-  //   return <Navigate to="/" />;
-  // }
+  //if (!user?.is_staff) {
+  //  return <Navigate to="/" />;
+  //}
 
   if (loading) {
     return (
@@ -251,7 +280,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="space-y-4">
-              {events.map((event) => (
+              {Array.isArray(events) && events.map((event) => (
                 <div
                   key={event.id}
                   className="bg-white border border-gray-100 rounded-3xl p-6 hover:shadow-md transition-all group"
@@ -271,12 +300,22 @@ export default function AdminDashboard() {
                         {event.location}
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleDeleteEvent(event.id)}
-                      className="text-gray-400 hover:text-red-500 p-2 -mr-2 -mt-2 opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEditModal(event)}
+                        className="text-blue-500 hover:text-blue-700 p-2 opacity-0 group-hover:opacity-100 transition-all"
+                        title="Редактировать"
+                      >
+                        <Pencil className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEvent(event.id)}
+                        className="text-gray-400 hover:text-red-500 p-2 opacity-0 group-hover:opacity-100 transition-all"
+                        title="Удалить"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -348,7 +387,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="space-y-4">
-              {posts.map((post) => (
+              {Array.isArray(posts) && posts.map((post) => (
                 <div
                   key={post.id}
                   className="bg-white border border-gray-100 rounded-3xl p-6 hover:shadow-md transition-all group"
@@ -384,7 +423,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {users.map((u) => (
+                {Array.isArray(users) && users.map((u) => (
                   <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                     <td className="py-4 px-6 font-medium">{u.username}</td>
                     <td className="py-4 px-6 text-gray-500">{u.email}</td>
@@ -398,6 +437,81 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+
+      {isEditModalOpen && editingEvent && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6 relative">
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+            <h2 className="text-xl font-bold mb-4">Редактировать мероприятие</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const updatedData = {
+                  title: formData.get('title') as string,
+                  description: formData.get('description') as string,
+                  date: formData.get('date') as string,
+                  location: formData.get('location') as string,
+                  required_volunteers: parseInt(formData.get('required_volunteers') as string),
+                };
+                handleUpdateEvent(updatedData);
+              }}
+              className="space-y-4"
+            >
+              <input
+                type="text"
+                name="title"
+                defaultValue={editingEvent.title}
+                placeholder="Название"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                required
+              />
+              <textarea
+                name="description"
+                defaultValue={editingEvent.description}
+                placeholder="Описание"
+                rows={3}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                required
+              />
+              <input
+                type="datetime-local"
+                name="date"
+                defaultValue={editingEvent.date.slice(0, 16)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                required
+              />
+              <input
+                type="text"
+                name="location"
+                defaultValue={editingEvent.location}
+                placeholder="Место"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                required
+              />
+              <input
+                type="number"
+                name="required_volunteers"
+                defaultValue={editingEvent.required_volunteers}
+                placeholder="Кол-во волонтёров"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                required
+              />
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition"
+              >
+                Сохранить
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -44,9 +44,14 @@ class ApplicationListCreateView(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Application.objects.all()
+        return Application.objects.filter(user=user)
 
 class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all()

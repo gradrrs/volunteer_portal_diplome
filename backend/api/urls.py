@@ -31,4 +31,5 @@ urlpatterns = [
     path('admin/users/', AdminUsersView.as_view(), name='admin-users'),
     path('users/me/', CurrentUserView.as_view(), name='current-user'),
     path('users/me/update/', UpdateUserView.as_view(), name='update-user'),
+    path('applications/<int:pk>/', ApplicationDetailView.as_view(), name='application-detail'),
 ]

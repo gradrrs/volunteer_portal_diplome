@@ -3,7 +3,7 @@ import { apiClient } from '../api/axiosInstance';
 import { useAuthStore } from '../store/authStore';
 import Header from '../components/Header';
 import EditProfileModal from '../components/EditProfileModal';
-import { Mail, Phone, Calendar, Trophy } from 'lucide-react';
+import { Mail, Phone, Calendar, Trophy, Trash2 } from 'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -70,6 +70,18 @@ export default function ProfilePage() {
     fetchUser();
   };
 
+  const cancelApplication = async (appId: number) => {
+    if (!confirm('Отменить заявку?')) return;
+    try {
+      await apiClient.delete(`/applications/${appId}/`);
+      setApplications(applications.filter(app => app.id !== appId));
+      alert('Заявка отменена');
+    } catch (error) {
+      console.error('Ошибка отмены заявки:', error);
+      alert('Не удалось отменить заявку');
+    }
+  };
+
   if (!profile) return <div>Загрузка...</div>;
 
   return (
@@ -91,7 +103,7 @@ export default function ProfilePage() {
               onClick={() => setIsEditModalOpen(true)}
               className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl transition"
             >
-              ✏️ Редактировать
+              Редактировать
             </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -114,7 +126,18 @@ export default function ProfilePage() {
                     <div className="font-medium">{app.event.title}</div>
                     <div className="text-sm text-gray-500">{new Date(app.event.date).toLocaleDateString('ru-RU')}</div>
                   </div>
-                  <div className="text-sm px-3 py-1 rounded-full bg-gray-100">{getStatusText(app.status)}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm px-3 py-1 rounded-full bg-gray-100">{getStatusText(app.status)}</span>
+                    {app.status === 'pending' && (
+                      <button
+                        onClick={() => cancelApplication(app.id)}
+                        className="text-red-500 hover:text-red-700 p-1 transition"
+                        title="Отменить заявку"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
