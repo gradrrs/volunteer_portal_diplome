@@ -7,9 +7,12 @@ interface User {
   username: string;
   email: string;
   phone?: string;
+  avatar?: string;
   is_staff: boolean;
   date_joined?: string;
 }
+
+
 
 interface AuthState {
   access: string | null;
