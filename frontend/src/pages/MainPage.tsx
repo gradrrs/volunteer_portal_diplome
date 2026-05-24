@@ -10,51 +10,43 @@ interface Post {
   created_at: string;
   likes_count: number;
   comments_count: number;
+  user_has_liked: boolean;
 }
 
 export default function MainPage() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
-
-  const loadPosts = async (url: string) => {
-    setLoading(true);
-    try {
-      const response = await apiClient.get(url);
-      const newPosts = response.data.results;
-      setPosts(prev => [...prev, ...newPosts]);
-      setNextPageUrl(response.data.next);
-    } catch (error) {
-      console.error('Ошибка загрузки постов:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadMore = () => {
-    if (nextPageUrl && !loading) {
-      loadPosts(nextPageUrl);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchFirstPage = async () => {
-      setInitialLoading(true);
+    const fetchPosts = async () => {
       try {
         const response = await apiClient.get('/posts/');
-        setPosts(response.data.results);
-        setNextPageUrl(response.data.next);
+        setPosts(response.data.results || response.data);
       } catch (error) {
-        console.error('Ошибка первой загрузки:', error);
+        console.error('Ошибка загрузки постов:', error);
       } finally {
-        setInitialLoading(false);
+        setLoading(false);
       }
     };
-    fetchFirstPage();
+    fetchPosts();
   }, []);
 
-  if (initialLoading) {
+  const handleLikePost = async (postId: number) => {
+    try {
+      await apiClient.post('/likes/', { post: postId });
+      setPosts(prev =>
+        prev.map(p =>
+          p.id === postId
+            ? { ...p, likes_count: p.likes_count + 1, user_has_liked: true }
+            : p
+        )
+      );
+    } catch (error) {
+      console.error('Ошибка лайка поста:', error);
+    }
+  };
+
+  if (loading) {
     return (
       <div>
         <Header />
@@ -68,28 +60,23 @@ export default function MainPage() {
       <Header />
       <div className="max-w-2xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Лента постов</h1>
-        {posts.map((post) => (
-          <div key={post.id} className="border p-4 mb-4 rounded shadow">
+        {posts.length === 0 && <p className="text-gray-500 text-center">Нет постов</p>}
+        {posts.map(post => (
+          <div key={post.id} className="border rounded-lg p-4 mb-4 shadow-sm">
             <h2 className="text-xl font-semibold">{post.title}</h2>
-            <p className="text-gray-600 text-sm">{post.author} • {new Date(post.created_at).toLocaleString()}</p>
+            <p className="text-gray-600 text-sm mt-1">{post.author} • {new Date(post.created_at).toLocaleString()}</p>
             <p className="mt-2">{post.content}</p>
-            <p className="mt-2 text-sm text-gray-500">❤️ {post.likes_count} 💬 {post.comments_count}</p>
+            <div className="flex items-center gap-4 mt-3">
+              <button
+                onClick={() => handleLikePost(post.id)}
+                disabled={post.user_has_liked}
+                className="flex items-center gap-1 text-sm text-gray-500 disabled:opacity-50"
+              >
+                {post.user_has_liked ? '❤️' : '🤍'} {post.likes_count}
+              </button>
+            </div>
           </div>
         ))}
-        {loading && <p className="text-center text-gray-500">Загрузка...</p>}
-        {nextPageUrl && !loading && (
-          <div className="text-center mt-4">
-            <button
-              onClick={loadMore}
-              className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition"
-            >
-              Загрузить ещё
-            </button>
-          </div>
-        )}
-        {!nextPageUrl && posts.length > 0 && (
-          <p className="text-center text-gray-400 mt-6">Все посты загружены</p>
-        )}
       </div>
     </div>
   );

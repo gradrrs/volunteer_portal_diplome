@@ -2,8 +2,7 @@ from django.urls import path
 from .views import (
     EventListCreateView, EventDetailView,
     ApplicationListCreateView, ApplicationDetailView,
-    PostListCreateView, PostDetailView,
-    CommentListCreateView, LikeCreateView,
+    PostListCreateView, PostDetailView, LikeCreateView,
     NotificationListView,
     UserRatingView,
     CurrentUserView,
@@ -12,6 +11,7 @@ from .views import (
     AdminUsersView,
     UpdateUserView,
     TransactionListView,
+    
 )
 
 urlpatterns = [
@@ -21,17 +21,13 @@ urlpatterns = [
     path('applications/<int:pk>/', ApplicationDetailView.as_view(), name='application-detail'),
     path('posts/', PostListCreateView.as_view(), name='post-list'),
     path('posts/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
-    path('posts/<int:post_pk>/comments/', CommentListCreateView.as_view(), name='comment-list'),
     path('likes/', LikeCreateView.as_view(), name='like-create'),
     path('notifications/', NotificationListView.as_view(), name='notification-list'),
     path('ratings/me/', UserRatingView.as_view(), name='user-rating'),
     path('users/me/', CurrentUserView.as_view(), name='current-user'),
-    path('notifications/', NotificationListView.as_view(), name='notification-list'),
     path('notifications/<int:pk>/', NotificationDetailView.as_view(), name='notification-detail'),
     path('notifications/mark-all-read/', MarkAllNotificationsReadView.as_view(), name='notifications-mark-all-read'),
     path('admin/users/', AdminUsersView.as_view(), name='admin-users'),
-    path('users/me/', CurrentUserView.as_view(), name='current-user'),
     path('users/me/update/', UpdateUserView.as_view(), name='update-user'),
-    path('applications/<int:pk>/', ApplicationDetailView.as_view(), name='application-detail'),
     path('transactions/', TransactionListView.as_view(), name='transactions'),
 ]

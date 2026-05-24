@@ -1,23 +1,7 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Comment, Like, Application, Rating, Notification, Transaction
+from .models import Like, Application, Rating, Notification, Transaction
 from .models import APPLICATION_STATUS
-
-@receiver(post_save, sender=Comment)
-def add_points_for_comment(sender, instance, created, **kwargs):
-    if created:
-        rating, _ = Rating.objects.get_or_create(user=instance.author)
-        rating.score += 5
-        rating.save()
-        Transaction.objects.create(
-            user=instance.author,
-            amount=5,
-            reason='Комментарий'
-        )
-        Notification.objects.create(
-            user=instance.post.author,
-            message=f"{instance.author.username} оставил комментарий к вашему посту «{instance.post.title}»"
-        )
 
 @receiver(post_save, sender=Like)
 def add_points_for_like(sender, instance, created, **kwargs):
@@ -37,7 +21,7 @@ def add_points_for_like(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Application)
 def handle_application_status(sender, instance, created, **kwargs):
-    if not created and instance.status == APPLICATION_STATUS[3][0]:  # 'completed'
+    if not created and instance.status == APPLICATION_STATUS[3][0]:
         rating, _ = Rating.objects.get_or_create(user=instance.user)
         rating.score += 10
         rating.save()

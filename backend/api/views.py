@@ -2,8 +2,8 @@ from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer
-from .models import Event, Application, Post, Comment, Like, Notification,Rating, User, Transaction
-from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, CommentSerializer, LikeSerializer, NotificationSerializer, RatingSerializer, TransactionSerializer
+from .models import Event, Application, Post, Like, Notification, Rating, User, Transaction
+from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, LikeSerializer, NotificationSerializer, RatingSerializer, TransactionSerializer
 from rest_framework.pagination import PageNumberPagination
 
 class EventPagination(PageNumberPagination):
@@ -53,28 +53,10 @@ class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):
             return Application.objects.all()
         return Application.objects.filter(user=user)
 
-class PostListCreateView(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-class CommentListCreateView(generics.ListCreateAPIView):
-    serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return Comment.objects.filter(post_id=self.kwargs['post_pk'])
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user, post_id=self.kwargs['post_pk'])
 
 class LikeCreateView(generics.CreateAPIView):
     serializer_class = LikeSerializer
@@ -147,6 +129,9 @@ class PostListCreateView(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     pagination_class = PostPagination
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 class UpdateUserView(generics.UpdateAPIView):
     serializer_class = UserSerializer

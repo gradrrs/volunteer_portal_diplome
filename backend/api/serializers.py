@@ -1,10 +1,11 @@
 from rest_framework import serializers
-from .models import User, Event, Application, Post, Comment, Like, Rating, Notification, Transaction
+from .models import User, Event, Application, Post, Like, Rating, Notification, Transaction
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'phone', 'date_joined']
+        fields = ['id', 'username', 'email', 'phone', 'avatar', 'date_joined', 'is_staff']
+        read_only_fields = ['id', 'email', 'date_joined', 'is_staff']
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,29 +22,32 @@ class ApplicationSerializer(serializers.ModelSerializer):
         read_only_fields = ['user', 'status', 'created_at', 'updated_at']
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField()
+    author = serializers.StringRelatedField(read_only=True)
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
+    user_has_liked = serializers.SerializerMethodField()
+
     class Meta:
         model = Post
-        fields = ['id', 'author', 'title', 'content', 'created_at', 'updated_at', 'likes_count', 'comments_count']
-    
+        fields = ['id', 'author', 'title', 'content', 'created_at', 'updated_at', 'likes_count', 'comments_count', 'user_has_liked']
+
     def get_likes_count(self, obj):
         return obj.likes.count()
-    
-    def get_comments_count(self, obj):
-        return obj.comments.count()
 
-class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField()
-    class Meta:
-        model = Comment
-        fields = ['id', 'post', 'author', 'text', 'created_at']
+    def get_comments_count(self, obj):
+        return 0  # комментарии удалены, поэтому всегда 0
+
+    def get_user_has_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
 
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ['id', 'post', 'user']
+        read_only_fields = ['user']
 
 class RatingSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
@@ -55,18 +59,6 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ['id', 'message', 'is_read', 'created_at']
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'phone', 'date_joined', 'is_staff']
-        read_only_fields = ['id', 'email', 'date_joined', 'is_staff']
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'phone', 'avatar', 'date_joined', 'is_staff']
-        read_only_fields = ['id', 'email', 'date_joined', 'is_staff']
 
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:

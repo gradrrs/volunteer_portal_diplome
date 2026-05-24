@@ -3,6 +3,7 @@ import { apiClient } from '../api/axiosInstance';
 import { useAuthStore } from '../store/authStore';
 import Header from '../components/Header';
 import { Calendar, MapPin, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Event {
   id: number;
@@ -78,7 +79,9 @@ export default function EventsPage() {
         <div className="space-y-4">
           {events.map((event) => (
             <div key={event.id} className="border rounded-lg p-4 shadow-sm">
-              <h2 className="text-xl font-semibold">{event.title}</h2>
+              <Link to={`/events/${event.id}`} className="text-xl font-semibold hover:text-blue-600 transition">
+                {event.title}
+              </Link>
               <p className="text-gray-600 mt-1">{event.description}</p>
               <div className="mt-2 text-sm text-gray-500 flex flex-wrap gap-3">
                 <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {new Date(event.date).toLocaleString()}</span>
