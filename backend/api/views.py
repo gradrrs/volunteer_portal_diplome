@@ -2,8 +2,8 @@ from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer
-from .models import Event, Application, Post, Comment, Like, Notification,Rating, User
-from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, CommentSerializer, LikeSerializer, NotificationSerializer, RatingSerializer
+from .models import Event, Application, Post, Comment, Like, Notification,Rating, User, Transaction
+from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, CommentSerializer, LikeSerializer, NotificationSerializer, RatingSerializer, TransactionSerializer
 from rest_framework.pagination import PageNumberPagination
 
 class EventPagination(PageNumberPagination):
@@ -154,3 +154,10 @@ class UpdateUserView(generics.UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+    
+class TransactionListView(generics.ListAPIView):
+    serializer_class = TransactionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Transaction.objects.filter(user=self.request.user).order_by('-created_at')

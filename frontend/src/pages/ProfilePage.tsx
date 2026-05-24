@@ -30,10 +30,18 @@ interface Rating {
   score: number;
 }
 
+interface Transaction {
+  id: number;
+  amount: number;
+  reason: string;
+  created_at: string;
+}
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [rating, setRating] = useState<Rating | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const accessToken = useAuthStore((state) => state.access);
@@ -43,14 +51,16 @@ export default function ProfilePage() {
     if (!accessToken) return;
     const fetchData = async () => {
       try {
-        const [profileRes, appsRes, ratingRes] = await Promise.all([
+        const [profileRes, appsRes, ratingRes, transRes] = await Promise.all([
           apiClient.get('/users/me/'),
           apiClient.get('/applications/'),
-          apiClient.get('/ratings/me/')
+          apiClient.get('/ratings/me/'),
+          apiClient.get('/transactions/')
         ]);
         setProfile(profileRes.data);
         setApplications(appsRes.data);
         setRating(ratingRes.data);
+        setTransactions(transRes.data);
       } catch (error) {
         console.error(error);
       }
@@ -120,7 +130,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-md border p-6">
+        <div className="bg-white rounded-3xl shadow-md border p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Мои заявки</h2>
           {applications.length === 0 ? (
             <p className="text-gray-400">У вас пока нет заявок</p>
@@ -133,6 +143,23 @@ export default function ProfilePage() {
                     <div className="text-sm text-gray-500">{new Date(app.event.date).toLocaleDateString('ru-RU')}</div>
                   </div>
                   <div className="text-sm px-3 py-1 rounded-full bg-gray-100">{getStatusText(app.status)}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-md border p-6">
+          <h2 className="text-xl font-semibold mb-4">История начислений</h2>
+          {transactions.length === 0 ? (
+            <p className="text-gray-400">Пока нет операций</p>
+          ) : (
+            <div className="space-y-2">
+              {transactions.map(trans => (
+                <div key={trans.id} className="flex justify-between items-center border-b py-2">
+                  <span>{trans.reason}</span>
+                  <span className="font-medium text-green-600">+{trans.amount}</span>
+                  <span className="text-sm text-gray-400">{new Date(trans.created_at).toLocaleDateString('ru-RU')}</span>
                 </div>
               ))}
             </div>

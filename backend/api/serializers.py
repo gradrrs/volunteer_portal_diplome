@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Event, Application, Post, Comment, Like, Rating, Notification
+from .models import User, Event, Application, Post, Comment, Like, Rating, Notification, Transaction
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -67,3 +67,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'phone', 'avatar', 'date_joined', 'is_staff']
         read_only_fields = ['id', 'email', 'date_joined', 'is_staff']
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = ['id', 'amount', 'reason', 'created_at']
