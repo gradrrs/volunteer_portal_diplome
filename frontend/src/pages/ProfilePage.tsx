@@ -24,6 +24,7 @@ interface Application {
   };
   status: string;
   created_at: string;
+  event_title?: string;
 }
 
 interface Rating {
@@ -139,27 +140,9 @@ export default function ProfilePage() {
               {applications.map(app => (
                 <div key={app.id} className="flex justify-between items-center border-b pb-2">
                   <div>
-                    <div className="font-medium">{app.event.title}</div>
-                    <div className="text-sm text-gray-500">{new Date(app.event.date).toLocaleDateString('ru-RU')}</div>
+                    <div className="font-medium">{app.event?.title || app.event_title || 'Без названия'}</div>
                   </div>
                   <div className="text-sm px-3 py-1 rounded-full bg-gray-100">{getStatusText(app.status)}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="bg-white rounded-3xl shadow-md border p-6">
-          <h2 className="text-xl font-semibold mb-4">История начислений</h2>
-          {transactions.length === 0 ? (
-            <p className="text-gray-400">Пока нет операций</p>
-          ) : (
-            <div className="space-y-2">
-              {transactions.map(trans => (
-                <div key={trans.id} className="flex justify-between items-center border-b py-2">
-                  <span>{trans.reason}</span>
-                  <span className="font-medium text-green-600">+{trans.amount}</span>
-                  <span className="text-sm text-gray-400">{new Date(trans.created_at).toLocaleDateString('ru-RU')}</span>
                 </div>
               ))}
             </div>
