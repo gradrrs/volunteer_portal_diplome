@@ -44,6 +44,7 @@ class ApplicationListCreateView(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
 

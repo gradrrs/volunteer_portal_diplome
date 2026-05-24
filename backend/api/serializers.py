@@ -19,7 +19,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
         fields = ['id', 'user', 'event', 'event_title', 'status', 'created_at', 'updated_at']
-        read_only_fields = ['user', 'status', 'created_at', 'updated_at']
+        read_only_fields = ['user', 'event', 'created_at', 'updated_at']  # status доступен для записи
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField(read_only=True)
@@ -35,7 +35,7 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.likes.count()
 
     def get_comments_count(self, obj):
-        return 0  # комментарии удалены, поэтому всегда 0
+        return 0
 
     def get_user_has_liked(self, obj):
         request = self.context.get('request')

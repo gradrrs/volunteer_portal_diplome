@@ -94,12 +94,14 @@ export default function AdminDashboard() {
 
   const handleStatusChange = async (id: number, status: string) => {
     try {
-      await apiClient.patch(`/applications/${id}/`, { status });
-      setApplications(applications.map(app => 
-        app.id === id ? { ...app, status } : app
+      const response = await apiClient.patch(`/applications/${id}/`, { status });
+      setApplications(prev => prev.map(app => 
+        app.id === id ? response.data : app
       ));
+      alert('Статус обновлён');
     } catch (error) {
       console.error('Ошибка обновления статуса:', error);
+      alert('Не удалось обновить статус');
     }
   };
 
