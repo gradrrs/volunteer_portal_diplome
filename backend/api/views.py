@@ -6,6 +6,7 @@ from .models import Event, Application, Post, Like, Notification, Rating, User, 
 from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, LikeSerializer, NotificationSerializer, RatingSerializer, TransactionSerializer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError
+from django.utils import timezone
 
 class EventPagination(PageNumberPagination):
     page_size = 5
@@ -18,7 +19,7 @@ class EventListCreateView(generics.ListCreateAPIView):
     pagination_class = EventPagination
 
     def get_queryset(self):
-        queryset = Event.objects.all()
+        queryset = Event.objects.filter(date__gte=timezone.now())
         search = self.request.query_params.get('search', None)
         date = self.request.query_params.get('date', None)
         if search:

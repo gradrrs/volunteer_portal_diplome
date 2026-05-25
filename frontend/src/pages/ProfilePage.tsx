@@ -17,14 +17,12 @@ interface UserProfile {
 
 interface Application {
   id: number;
-  event: {
-    id: number;
-    title: string;
-    date: string;
-  };
+  user: string;
+  event: number;
+  event_title: string;
+  event_date: string;
   status: string;
   created_at: string;
-  event_title?: string;
 }
 
 interface Rating {
@@ -58,8 +56,16 @@ export default function ProfilePage() {
           apiClient.get('/ratings/me/'),
           apiClient.get('/transactions/')
         ]);
+        
+        const currentDate = new Date();
+        const activeApplications = appsRes.data.filter((app: Application) => {
+          if (!app.event_date) return false;
+          const eventDate = new Date(app.event_date);
+          return eventDate >= currentDate;
+        });
+        
         setProfile(profileRes.data);
-        setApplications(appsRes.data);
+        setApplications(activeApplications);
         setRating(ratingRes.data);
         setTransactions(transRes.data);
       } catch (error) {
@@ -134,15 +140,35 @@ export default function ProfilePage() {
         <div className="bg-white rounded-3xl shadow-md border p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Мои заявки</h2>
           {applications.length === 0 ? (
-            <p className="text-gray-400">У вас пока нет заявок</p>
+            <p className="text-gray-400">У вас пока нет активных заявок</p>
           ) : (
             <div className="space-y-3">
               {applications.map(app => (
                 <div key={app.id} className="flex justify-between items-center border-b pb-2">
                   <div>
-                    <div className="font-medium">{app.event?.title || app.event_title || 'Без названия'}</div>
+                    <div className="font-medium">{app.event_title}</div>
+                    <div className="text-xs text-gray-400">
+                      {new Date(app.event_date).toLocaleDateString('ru-RU')}
+                    </div>
                   </div>
                   <div className="text-sm px-3 py-1 rounded-full bg-gray-100">{getStatusText(app.status)}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-md border p-6">
+          <h2 className="text-xl font-semibold mb-4">История начислений</h2>
+          {transactions.length === 0 ? (
+            <p className="text-gray-400">Пока нет операций</p>
+          ) : (
+            <div className="space-y-2">
+              {transactions.map(trans => (
+                <div key={trans.id} className="flex justify-between items-center border-b py-2">
+                  <span>{trans.reason}</span>
+                  <span className="font-medium text-green-600">+{trans.amount}</span>
+                  <span className="text-sm text-gray-400">{new Date(trans.created_at).toLocaleDateString('ru-RU')}</span>
                 </div>
               ))}
             </div>
