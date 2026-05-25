@@ -8,9 +8,15 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'email', 'date_joined', 'is_staff']
 
 class EventSerializer(serializers.ModelSerializer):
+    is_full = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
-        fields = '__all__'
+        fields = ['id', 'title', 'description', 'date', 'location', 'required_volunteers', 'is_full']
+
+    def get_is_full(self, obj):
+        approved_count = obj.applications.filter(status='approved').count()
+        return approved_count >= obj.required_volunteers
 
 class ApplicationSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)

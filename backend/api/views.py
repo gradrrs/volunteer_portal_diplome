@@ -5,6 +5,7 @@ from .serializers import UserSerializer
 from .models import Event, Application, Post, Like, Notification, Rating, User, Transaction
 from .serializers import EventSerializer, ApplicationSerializer, PostSerializer, LikeSerializer, NotificationSerializer, RatingSerializer, TransactionSerializer
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import ValidationError
 
 class EventPagination(PageNumberPagination):
     page_size = 5
@@ -41,6 +42,10 @@ class ApplicationListCreateView(generics.ListCreateAPIView):
         return Application.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
+        event = serializer.validated_data.get('event')
+        approved_count = Application.objects.filter(event=event, status='approved').count()
+        if approved_count >= event.required_volunteers:
+            raise ValidationError({'detail': f'Мероприятие "{event.title}" уже заполнено'})
         serializer.save(user=self.request.user)
 
 class ApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):

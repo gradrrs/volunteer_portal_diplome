@@ -12,6 +12,7 @@ interface Event {
   date: string;
   location: string;
   required_volunteers: number;
+  is_full?: boolean; // добавляем опциональное поле
 }
 
 interface Application {
@@ -56,7 +57,7 @@ export default function EventsPage() {
       alert('✅ Заявка подана!');
     } catch (error: any) {
       console.error('Ошибка подачи заявки:', error);
-      const message = error.response?.data?.event?.[0] || error.response?.data?.detail || 'Не удалось подать заявку';
+      const message = error.response?.data?.detail || error.response?.data?.event?.[0] || 'Не удалось подать заявку';
       alert('❌ ' + message);
     }
   };
@@ -89,7 +90,9 @@ export default function EventsPage() {
                 <span className="flex items-center gap-1"><Users className="w-4 h-4" /> {event.required_volunteers}</span>
               </div>
               <div className="mt-3">
-                {hasApplication(event.id) ? (
+                {event.is_full ? (
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded text-sm">Мест нет</span>
+                ) : hasApplication(event.id) ? (
                   <span className="bg-green-100 text-green-800 px-3 py-1 rounded text-sm">Заявка подана</span>
                 ) : (
                   <button
