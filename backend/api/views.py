@@ -43,6 +43,8 @@ class ApplicationListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         event = serializer.validated_data.get('event')
+        if event is None:
+            raise ValidationError({'detail': 'Мероприятие не указано'})
         approved_count = Application.objects.filter(event=event, status='approved').count()
         if approved_count >= event.required_volunteers:
             raise ValidationError({'detail': f'Мероприятие "{event.title}" уже заполнено'})

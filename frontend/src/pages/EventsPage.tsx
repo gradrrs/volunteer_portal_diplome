@@ -12,7 +12,7 @@ interface Event {
   date: string;
   location: string;
   required_volunteers: number;
-  is_full?: boolean; // добавляем опциональное поле
+  is_full?: boolean;
 }
 
 interface Application {
