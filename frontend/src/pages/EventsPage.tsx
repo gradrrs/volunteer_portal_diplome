@@ -28,23 +28,32 @@ export default function EventsPage() {
   const accessToken = useAuthStore((state) => state.access);
 
   useEffect(() => {
-    if (!accessToken) return;
-    const fetchData = async () => {
-      try {
-        const [eventsRes, appsRes] = await Promise.all([
-          apiClient.get('/events/'),
-          apiClient.get('/applications/')
-        ]);
-        setEvents(eventsRes.data.results || eventsRes.data);
-        setApplications(appsRes.data.results || appsRes.data);
-      } catch (error) {
-        console.error('Ошибка загрузки:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [accessToken]);
+      if (!accessToken) return;
+      
+      const fetchData = async () => {
+        try {
+          const config = {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          };
+
+          const [eventsRes, appsRes] = await Promise.all([
+            apiClient.get('/events/', config),
+            apiClient.get('/applications/', config)
+          ]);
+          
+          setEvents(eventsRes.data.results || eventsRes.data);
+          setApplications(appsRes.data.results || appsRes.data);
+        } catch (error) {
+          console.error('Ошибка загрузки:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchData();
+    }, [accessToken]);
 
   const hasApplication = (eventId: number) => {
     return applications.some(app => app.event === eventId);

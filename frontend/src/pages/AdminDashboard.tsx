@@ -172,10 +172,9 @@ export default function AdminDashboard() {
       console.error('Ошибка создания поста:', error);
     }
   };
-
-  //if (!user?.is_staff) {
-  //  return <Navigate to="/" />;
-  //}
+  if (!user || String(user.is_staff).toLowerCase() !== 'true') {
+    return <Navigate to="/" replace />;
+  }
 
   if (loading) {
     return (
