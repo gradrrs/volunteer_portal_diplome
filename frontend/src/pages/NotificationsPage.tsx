@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/axiosInstance';
-import { useAuthStore } from '../store/authStore';
 import Header from '../components/Header';
-import { Bell, Check, Trash2 } from 'lucide-react';
+import { Bell, Check } from 'lucide-react';
 
 interface Notification {
   id: number;
