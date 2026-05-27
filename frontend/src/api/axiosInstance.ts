@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api/';
-const AUTH_BASE_URL = 'http://127.0.0.1:8000/auth/';
+const API_BASE_URL = 'https://volunteer-portal-api-ql1p.onrender.com/api/';
+const AUTH_BASE_URL = 'https://volunteer-portal-api-ql1p.onrender.com/auth/';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
