@@ -13,7 +13,7 @@ def add_points_for_like(sender, instance, created, **kwargs):
         Transaction.objects.create(user=instance.user, amount=1, reason='Лайк')
         Notification.objects.create(
             user=instance.post.author,
-            message=f"{instance.user.username} поставил лайк вашему посту «{instance.post.title}»"
+            message=f"{instance.user.username} поставил лайк вашему посту {instance.post.title}"
         )
 
 @receiver(post_save, sender=Application)
@@ -22,7 +22,7 @@ def handle_application_status(sender, instance, created, **kwargs):
         status_text = dict(APPLICATION_STATUS).get(instance.status, instance.status)
         Notification.objects.create(
             user=instance.user,
-            message=f"Статус вашей заявки на мероприятие «{instance.event.title}» изменён на: {status_text}"
+            message=f"Статус вашей заявки на мероприятие {instance.event.title} изменён на: {status_text}"
         )
         if instance.status == APPLICATION_STATUS[3][0]:
             rating, _ = Rating.objects.get_or_create(user=instance.user)
