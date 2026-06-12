@@ -153,3 +153,27 @@ class TransactionListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user).order_by('-created_at')
+    
+class UserRatingWithRankView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        ratings = Rating.objects.select_related('user').order_by('-score')
+        
+        user_rating = None
+        rank = None
+        for idx, rating in enumerate(ratings, start=1):
+            if rating.user == request.user:
+                user_rating = rating
+                rank = idx
+                break
+        
+        if not user_rating:
+            user_rating, created = Rating.objects.get_or_create(user=request.user)
+            rank = ratings.count() + 1 if ratings.exists() else 1
+        
+        return Response({
+            'score': user_rating.score,
+            'rank': rank,
+            'total_users': ratings.count()
+        })
