@@ -9,7 +9,6 @@ interface Post {
   author: string;
   created_at: string;
   likes_count: number;
-  comments_count: number;
   user_has_liked: boolean;
 }
 

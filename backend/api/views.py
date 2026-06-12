@@ -38,8 +38,6 @@ class ApplicationListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # В профиле показываем только заявки текущего пользователя
-        # Для админ-панели координатор использует другой эндпоинт или отдельную вьюху
         return Application.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
