@@ -174,22 +174,24 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <div className="bg-white rounded-3xl shadow-md border p-6">
-          <h2 className="text-xl font-semibold mb-4">История начислений</h2>
-          {transactions.length === 0 ? (
-            <p className="text-gray-400">Пока нет операций</p>
-          ) : (
-            <div className="space-y-2">
-              {transactions.map(trans => (
-                <div key={trans.id} className="flex justify-between items-center border-b py-2">
-                  <span>{trans.reason}</span>
-                  <span className="font-medium text-green-600">+{trans.amount}</span>
-                  <span className="text-sm text-gray-400">{new Date(trans.created_at).toLocaleDateString('ru-RU')}</span>
+      <div className="bg-white rounded-3xl shadow-md border p-6">
+        <h2 className="text-xl font-semibold mb-4">История начислений</h2>
+        {transactions.length === 0 ? (
+          <p className="text-gray-400">Пока нет операций</p>
+        ) : (
+          <div className="space-y-2">
+            {transactions.map(trans => (
+              <div key={trans.id} className="grid grid-cols-3 gap-2 items-center border-b py-2">
+                <div className="col-span-1 break-words">{trans.reason}</div>
+                <div className="text-right font-medium text-green-600">+{trans.amount}</div>
+                <div className="text-right text-sm text-gray-400">
+                  {new Date(trans.created_at).toLocaleDateString('ru-RU')}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       </div>
 
       <EditProfileModal
