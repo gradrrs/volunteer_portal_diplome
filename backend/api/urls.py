@@ -11,7 +11,7 @@ from .views import (
     AdminUsersView,
     UpdateUserView,
     TransactionListView,
-    
+    UserRatingWithRankView,
 )
 
 urlpatterns = [
@@ -30,4 +30,5 @@ urlpatterns = [
     path('admin/users/', AdminUsersView.as_view(), name='admin-users'),
     path('users/me/update/', UpdateUserView.as_view(), name='update-user'),
     path('transactions/', TransactionListView.as_view(), name='transactions'),
+    path('ratings/me/rank/', UserRatingWithRankView.as_view(), name='user-rating-with-rank')
 ]

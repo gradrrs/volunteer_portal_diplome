@@ -25,8 +25,10 @@ interface Application {
   created_at: string;
 }
 
-interface Rating {
+interface RatingWithRank {
   score: number;
+  rank: number;
+  total_users: number;
 }
 
 interface Transaction {
@@ -39,7 +41,7 @@ interface Transaction {
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
-  const [rating, setRating] = useState<Rating | null>(null);
+  const [rating, setRating] = useState<RatingWithRank | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
@@ -53,7 +55,7 @@ export default function ProfilePage() {
         const [profileRes, appsRes, ratingRes, transRes] = await Promise.all([
           apiClient.get('/users/me/'),
           apiClient.get('/applications/'),
-          apiClient.get('/ratings/me/'),
+          apiClient.get('/ratings/me/rank/'),
           apiClient.get('/transactions/')
         ]);
         
@@ -88,6 +90,14 @@ export default function ProfilePage() {
   const handleProfileUpdate = (updatedUser: UserProfile) => {
     setProfile(updatedUser);
     fetchUser();
+  };
+
+  const getRankDisplay = () => {
+    if (!rating?.rank) return null;
+    if (rating.rank === 1) return <span className="text-sm bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">🥇 1 место</span>;
+    if (rating.rank === 2) return <span className="text-sm bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full">🥈 2 место</span>;
+    if (rating.rank === 3) return <span className="text-sm bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">🥉 3 место</span>;
+    return <span className="text-sm text-gray-500">{rating.rank} место из {rating.total_users}</span>;
   };
 
   const avatarUrl = profile?.avatar ? `http://127.0.0.1:8000${profile.avatar}` : null;
@@ -133,7 +143,13 @@ export default function ProfilePage() {
             <div className="flex items-center gap-3"><Mail className="w-5 h-5 text-gray-500" />{profile.email}</div>
             <div className="flex items-center gap-3"><Phone className="w-5 h-5 text-gray-500" />{profile.phone || 'Не указан'}</div>
             <div className="flex items-center gap-3"><Calendar className="w-5 h-5 text-gray-500" />{new Date(profile.date_joined).toLocaleDateString('ru-RU')}</div>
-            <div className="flex items-center gap-3"><Trophy className="w-5 h-5 text-yellow-500" />Рейтинг: {rating?.score || 0} баллов</div>
+            <div className="flex items-center gap-3">
+              <Trophy className="w-5 h-5 text-yellow-500" />
+              <div className="flex items-center gap-2">
+                <span className="font-medium">Рейтинг: {rating?.score || 0} баллов</span>
+                {getRankDisplay()}
+              </div>
+            </div>
           </div>
         </div>
 
