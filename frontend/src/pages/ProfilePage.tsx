@@ -97,7 +97,7 @@ export default function ProfilePage() {
     if (rating.rank === 1) return <span className="text-sm bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">🥇 1 место</span>;
     if (rating.rank === 2) return <span className="text-sm bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full">🥈 2 место</span>;
     if (rating.rank === 3) return <span className="text-sm bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">🥉 3 место</span>;
-    return <span className="text-sm text-gray-500">{rating.rank} место из {rating.total_users}</span>;
+    return <span className="text-sm text-gray-500">{rating.rank} место</span>;
   };
 
   const avatarUrl = profile?.avatar ? `http://127.0.0.1:8000${profile.avatar}` : null;
