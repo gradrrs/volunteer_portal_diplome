@@ -26,7 +26,7 @@ class EventListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(title__icontains=search)
         if date:
             queryset = queryset.filter(date__date=date)
-        return queryset
+        return Application.objects.all()
 
 class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
