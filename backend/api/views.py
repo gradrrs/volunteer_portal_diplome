@@ -19,7 +19,7 @@ class EventListCreateView(generics.ListCreateAPIView):
     pagination_class = EventPagination
 
     def get_queryset(self):
-        queryset = Event.objects.filter(date__gte=timezone.now())
+        queryset = Event.objects.all()
         search = self.request.query_params.get('search', None)
         date = self.request.query_params.get('date', None)
         if search:
